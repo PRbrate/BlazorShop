@@ -47,14 +47,29 @@ namespace BlazorShop.Api.Repositories
             return null;
         }
 
-        public Task<CarrinhoItem> AtualizaQuantidade(int id, CarrinhoItemAtualizaQuantidadeDto carrinhoItemAtualiza)
+        public async Task<CarrinhoItem> AtualizaQuantidade(int id, CarrinhoItemAtualizaQuantidadeDto carrinhoItemAtualiza)
         {
-            throw new NotImplementedException();
+            var carrinhoItem = await _appDbContext.CarrinhoItens.FindAsync(id);
+
+            if(carrinhoItem is not null)
+            {
+                carrinhoItem.Quantidade = carrinhoItemAtualiza.Quantidade;
+                await _appDbContext.SaveChangesAsync();
+                return carrinhoItem;
+            }
+            return null;
         }
 
-        public Task<CarrinhoItem> DeletaItem(int id)
+        public async Task<CarrinhoItem> DeletaItem(int id)
         {
-            throw new NotImplementedException();
+            var item = await _appDbContext.CarrinhoItens.FindAsync(id);
+
+            if(item is not null)
+            {
+                _appDbContext.CarrinhoItens.Remove(item);
+                await _appDbContext.SaveChangesAsync();
+            }
+            return item;
         }
 
         public async Task<CarrinhoItem> GetItem(int id)

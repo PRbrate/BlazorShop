@@ -1,4 +1,7 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@implements IDisposable
+@inject IcarrinhoCompraService carrinhodeCompraService;
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">BlazorShop.Web</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -19,10 +22,16 @@
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Produtos
             </NavLink>
         </div>
+        <div class="nav-item px-3 d-sm-none">
+            <NavLink class="nav-link" href="CarrinhoCompra">
+                <span class="oi oi-cart" aria-hidden="true"></span>&nbsp;Carrinho(<b>@carrinhocompraItemContador</b>)
+            </NavLink>
+        </div>
     </nav>
 </div>
 
 @code {
+    private int carrinhocompraItemContador = 0;
     private bool collapseNavMenu = true;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
@@ -30,5 +39,21 @@
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    protected override void OnInitialized()
+    {
+        carrinhodeCompraService.OnCarrinhoItemChanged += CarrinhoCompraChanged;
+    }
+        
+    protected void CarrinhoCompraChanged(int TotalQuantidade)
+    {
+        carrinhocompraItemContador = TotalQuantidade;
+        StateHasChanged();
+    }
+
+    void IDisposable.Dispose()
+    {
+        carrinhodeCompraService.OnCarrinhoItemChanged -= CarrinhoCompraChanged;
     }
 }

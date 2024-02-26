@@ -45,6 +45,9 @@ else
     [Inject]
     public IcarrinhoCompraService? CarrinhoCompraService { get; set; }
 
+    [Inject]
+    public NavigationManager? NavigationManager { get; set; }
+
     [Parameter]
     public int Id { get; set; }
 
@@ -52,28 +55,30 @@ else
     public string? MensagemErro { get; set; }
 
 
-    protected async Task AdicionarAoCarrinho_Click(CarrinhoItemAdicionaDto carrinhoItemAdicionaDto)
-    {
-        try
-        {
-            var carrinhoItemDto = await CarrinhoCompraService.AdicionaItem(carrinhoItemAdicionaDto);
-        }
-        catch(Exception)
-        {
-            throw;
-        }
-
-    }
-
     protected override async Task OnInitializedAsync()
     {
         try
         {
             Produto = await ProdutoService.GetItem(Id);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            MensagemErro = ex.Message;    
+            MensagemErro = ex.Message;
+        }
+
+    }   
+
+    protected async Task AdicionarAoCarrinho_Click(CarrinhoItemAdicionaDto carrinhoItemAdicionaDto)
+    {
+        try
+        {
+            var carrinhoItemDto = await CarrinhoCompraService.AdicionaItem(carrinhoItemAdicionaDto);
+
+            NavigationManager.NavigateTo("/CarrinhoCompra");
+        }
+        catch(Exception)
+        {
+            throw;
         }
 
     }

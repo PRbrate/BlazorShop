@@ -32,13 +32,13 @@ namespace BlazorShop.Api.Controllers
             try
             {
                 var carrinhoItens = await _icarrinhoCompraRepository.GetItems(id);
-                if(carrinhoItens is null)
-                { 
-                    return NoContent(); 
+                if (carrinhoItens is null)
+                {
+                    return NoContent();
                 }
 
                 var produtos = await _iprodutoRepository.GetItens();
-                if(produtos is null)
+                if (produtos is null)
                 {
                     throw new Exception("Não existem produtos...");
                 }
@@ -72,14 +72,14 @@ namespace BlazorShop.Api.Controllers
                 }
 
                 var carrinhoItensDto = carrinhoItens.ConverterCarrinhoItensParaDto(produtos);
-                return Ok(carrinhoItensDto) ;
+                return Ok(carrinhoItensDto);
 
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 logger.LogError($"## Erro  ao obter o item = {id} do carrinho");
-                return StatusCode(StatusCodes.Status500InternalServerError , e.Message);
-            } 
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
         }
 
         [HttpPost]
@@ -89,14 +89,14 @@ namespace BlazorShop.Api.Controllers
             {
                 var carrinhoItem = await _icarrinhoCompraRepository.AdicionaItem(carrinhoItemAdicionaDto);
 
-                if(carrinhoItem is null)
+                if (carrinhoItem is null)
                 {
                     return NoContent();
                 }
 
                 var produto = await _iprodutoRepository.GetItem(carrinhoItem.ProdutoId);
 
-                if (produto is null) 
+                if (produto is null)
                 {
                     throw new Exception($"Produto  não localizado (Id: ({carrinhoItem.ProdutoId})");
                 }
@@ -104,12 +104,62 @@ namespace BlazorShop.Api.Controllers
                 var carrinhoItemDto = carrinhoItem.ConverterCarrinhoItensParaDto(produto);
                 return CreatedAtAction(nameof(GetItem), new { id = carrinhoItemDto.Id }, carrinhoItemDto);
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 logger.LogError("## Erro ao criar um novo item no carrinho");
                 return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }
 
+        [HttpDelete("{id:int}")]
+
+        public async Task<ActionResult<CarrinhoItemDto>> DeletaItem(int id)
+        {
+            try
+            {
+                var carrinhoItem = await _icarrinhoCompraRepository.DeletaItem(id);
+
+                if (carrinhoItem is null)
+                {
+                    return NotFound();
+                }
+
+                var produto = await _iprodutoRepository.GetItem(carrinhoItem.ProdutoId);
+
+                if (produto is null)
+                {
+                    return NotFound();
+                }
+
+                var carrinhoItemDto = carrinhoItem.ConverterCarrinhoItensParaDto(produto);
+                return Ok(carrinhoItemDto);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+        }
+
+
+        [HttpPatch("{id:int}")]
+        public async Task<ActionResult<CarrinhoItemDto>> AtualizaQuantidade(int id, CarrinhoItemAtualizaQuantidadeDto carrinhoItemAtualiza)
+        {
+            try
+            {
+                var carrinhoItem = await _icarrinhoCompraRepository.AtualizaQuantidade(id, carrinhoItemAtualiza);
+
+                if (carrinhoItem is null)
+                {
+                    return NotFound();
+                }
+                var produto = await _iprodutoRepository.GetItem(carrinhoItem.ProdutoId);
+                var carrinhoItemDto = carrinhoItem.ConverterCarrinhoItensParaDto(produto);
+                return Ok(carrinhoItemDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
     }
 }

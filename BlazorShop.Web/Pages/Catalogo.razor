@@ -32,9 +32,17 @@ else
 @code {
     public IEnumerable<ProdutoDto>? Produtos { get; set; }
 
+    [Inject]
+    public IcarrinhoCompraService? carrinhoCompraService { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         Produtos = await produtoService.GetItens();
+
+        var carrinhocompraIntes = await carrinhoCompraService.GetItem(UsuarioLogado.UsuarioId);
+        var totalQuantidade = carrinhocompraIntes.Sum(i => i.Quantidade);
+
+        carrinhoCompraService.RaiseEventOnCarrinhoCarrinhoChanged(totalQuantidade);
 
     }
 
