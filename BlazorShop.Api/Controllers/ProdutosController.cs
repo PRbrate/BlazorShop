@@ -23,7 +23,7 @@ namespace BlazorShop.Api.Controllers
             try
             {
                 var produtos = await _produtoRepository.GetItens();
-                if(produtos is null)
+                if (produtos is null)
                 {
                     return NotFound();
                 }
@@ -72,6 +72,22 @@ namespace BlazorShop.Api.Controllers
                 return Ok(produtosDtos);
             }
             catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao acessar a base de dados");
+            }
+        }
+
+        [HttpGet]
+        [Route("GetCategorias")]
+        public async Task<ActionResult<IEnumerable<CategoriaDto>>> GetCategorias()
+        {
+            try 
+            {
+                var categorias = await _produtoRepository.GetCategorias();
+                var categoriasDto = categorias.ConverterCategoriasParaDto();
+                return Ok(categoriasDto);
+            }
+            catch(Exception e) 
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Erro ao acessar a base de dados");
             }

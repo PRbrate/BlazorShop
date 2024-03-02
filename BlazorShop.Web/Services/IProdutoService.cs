@@ -8,5 +8,8 @@ namespace BlazorShop.Web.Services
 
         Task<ProdutoDto> GetItem(int id);
 
+        Task<IEnumerable<CategoriaDto>> GetCategorias();
+
+        Task<IEnumerable<ProdutoDto>> GetItensPorCategoria(int CategoriaId);
     }
 }

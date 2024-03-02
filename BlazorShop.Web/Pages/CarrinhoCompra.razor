@@ -64,6 +64,9 @@ else
     [Inject]
     public IcarrinhoCompraService? CarrinhoCompraService { get; set; }
 
+    [Inject]
+    public IGerenciaCarrinhoItensLocalStorageService? GerenciaCarrinhoItensLocalStorageService { get; set; }
+
     public List<CarrinhoItemDto>? CarrinhCompraItens { get; set; }
 
     public string? MensagemErro { get; set; }
@@ -77,7 +80,7 @@ else
     {
         try
         {
-            CarrinhCompraItens = await CarrinhoCompraService.GetItem(UsuarioLogado.UsuarioId);
+            CarrinhCompraItens = await GerenciaCarrinhoItensLocalStorageService.GetCollection();
 
             CarrinhoChanged();
         }
@@ -107,6 +110,7 @@ else
         var carrinhoItemDto = GetCarrinhoItem(id);
         CarrinhCompraItens.Remove(carrinhoItemDto);
 
+        await GerenciaCarrinhoItensLocalStorageService.Savecollection(CarrinhCompraItens);
     }
 
     protected async Task AtualizaQuantidadeCarrinhoItem_Click(int id, int quantidade)
@@ -160,7 +164,7 @@ else
         SetQuantidadeTotal();
     }
 
-    private void AtualizaPrecoTotalItem(CarrinhoItemDto carrinhoItemDto)
+    private async void AtualizaPrecoTotalItem(CarrinhoItemDto carrinhoItemDto)
     {
         var item = GetCarrinhoItem(carrinhoItemDto.Id);
 
@@ -168,6 +172,8 @@ else
         {
             item.PrecoTotal = carrinhoItemDto.Preco * carrinhoItemDto.Quantidade;
         }
+
+        await GerenciaCarrinhoItensLocalStorageService.Savecollection(CarrinhCompraItens);
     }
 
     protected async Task AtualizaQuantidade_Input(int id)
